@@ -1,24 +1,30 @@
 class HashTable {
   constructor(capacity, loadFactor) {
     this.buckets = [];
+    this.size = 0;
     this.capacity = capacity; // number of "buckets"
     this.loadFactor = loadFactor;
-  }
+  } 
 
-  #checkLength() {
-    let checkValue = this.buckets.length * this.loadFactor;
-    if (checkValue >= this.capacity) {
-      this.#doubleArraySize();
+  #resize() {
+    console.log("Doubling size of array...");    
+    let oldBuckets = this.buckets;
+    this.capacity *= 2;
+    this.buckets = new Array(this.capacity).fill(null).map(() => []);
+    this.size = 0;
+
+    for(const bucket of oldBuckets){ // iterate through each bucket
+        for(const [key, value] of bucket){ // iterate through each key-value pair
+            this.set(key, value);
+        }
     }
   }
 
-  #doubleArraySize() {
-    // create a new array double the size of the old one
-    // copy all existing nodes over to the buckets of the new array
-    // hash all the keys again to place in respective buckets.
-  }
-
   set(key, value) {
+    if(this.size >= (this.capacity * this.loadFactor)){
+        this.#resize();
+    }
+
     let index = hash(key, this.capacity);
 
     if (this.buckets[index] === undefined) {
@@ -35,7 +41,9 @@ class HashTable {
         this.buckets[index].push([key, value]);
       }
     }
+    this.size++;
   }
+
 }
 
 function hash(key, capacity) {
